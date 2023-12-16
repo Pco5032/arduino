@@ -18,7 +18,7 @@ boolean initRTC() {
 }
 
 void displayRTC() {
-  u8g2.setCursor(y1, x1);
+  u8g2.setCursor(0, 0);
   if (RTC_isThere) {
      
      // read current time

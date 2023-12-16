@@ -11,10 +11,6 @@ U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
 
 int dispSwitch = 0;
 
-// x/y for line 1 and 2 on OLED
-int x1=3, y1=0;
-int x2=38, y2=0;
-
 // display var
 char buffer[20];
 
@@ -27,9 +23,6 @@ unsigned long RTC_lastRefresh = 0;
 int EGT1_DO = 7; 
 int EGT1_CS = 8; 
 int EGT1_SCK = 9;
-int EGT2_DO = 10; 
-int EGT2_CS = 11; 
-int EGT2_SCK =12;
 
 // TEMP vars : set DS18B20 temperature sensor pin number
 const int DS18B20Pin = 5;
@@ -58,7 +51,6 @@ OneWire ds(DS18B20Pin);
 
 // declare EGT
 MAX6675 EGT1(EGT1_SCK, EGT1_CS, EGT1_DO);
-MAX6675 EGT2(EGT2_SCK, EGT2_CS, EGT2_DO);
 
 void u8g2_prepare() {
  u8g2.setFont(u8g2_font_logisoso26_tf);
@@ -84,27 +76,29 @@ void setup(void) {
 void loop(void) {
  u8g2.clearBuffer();
 
-  // display EGTs or clock and ext.temp
-  if (dispSwitch == 0) {
+ // RTC
+ displayRTC();
+
+ // display EGT or ext.temp
+ // if switch is 0 OR if there is no temp sensor, display EGT.
+ // if swith is 1 AND there is a temp sensor, display ext temp.
+ if (dispSwitch == 0 or DS_status != SENSOR_FOUND) {
    displayEGT();
    dispSwitch = 1;
    }
    else {
-    // display RTC
-    displayRTC();
-    // Temp : request measure, read and display temp from sensor
-    if (DS_status == SENSOR_FOUND) {
-      dispSwitch = 0;
-      requestTemperatureMeasure();
-      getTemperature(&outsideTemperature);
-      displayTemp(outsideTemperature);
-      }
-      else {
-       u8g2.setCursor(0, 35);
-       u8g2.print("NoTemp");
-       }
+ // Temp : request measure, read and display temp from sensor
+   if (DS_status == SENSOR_FOUND) {
+    dispSwitch = 0;
+     requestTemperatureMeasure();
+     getTemperature(&outsideTemperature);
+     displayTemp(outsideTemperature);
+     }
+     else {
+     u8g2.setCursor(0, 35);
+     u8g2.print("NoTemp");
+     }
   }
-
  // refresh display
  u8g2.sendBuffer();
  delay(1000);

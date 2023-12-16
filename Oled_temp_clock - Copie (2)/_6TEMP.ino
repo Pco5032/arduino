@@ -60,7 +60,7 @@ byte getTemperature(float *outsideTemperature) {
 // display temp
 void displayTemp(float temp) {
   // set the cursor position
-  u8g2.setCursor(y2, x2);
+  u8g2.setCursor(0, 35);
   // print with 1 decimal
   u8g2.print(temp, 1);
   u8g2.print("°C");
